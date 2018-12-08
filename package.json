@@ -1,0 +1,19 @@
+{
+  "name": "streaming-server-experiment",
+  "version": "1.0.0",
+  "description": "Some experiments with http and streams",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon ./index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Adam Davis <adam@admataz.com>",
+  "license": "MIT",
+  "dependencies": {
+    "fastify": "^1.13.1",
+    "fastify-static": "^1.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.7"
+  }
+}

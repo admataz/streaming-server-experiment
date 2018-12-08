@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <input type="file" id="fileupload" />
+
+
+<script>
+  const fileInput = document.querySelector('#fileupload')
+  fileInput.addEventListener('change', handleFiles, false)
+  let rs
+  
+
+  function handleFiles(){
+    const fr = new FileReader()
+    
+    
+    fr.onloadend = function(f){
+      
+      rs = new ReadableStream({
+        start(controller){
+          controller.enqueue(fr.result)
+        },
+        pull(controller){
+          console.log(controller)
+          console.log('pull')
+        }
+        // autoAllocateChunkSize: 5
+      })
+
+
+
+
+
+      const reader = rs.getReader()
+      function pushStream(c){
+        reader.read().then(function(evt){
+          console.log(evt)
+          if(evt.done){
+            console.log('done')
+            return
+          }
+          pushStream()
+        })
+      }
+
+      pushStream()
+      // console.log(fr.result)
+      let req = new Request('/submit', {method:'POST', body: fr.result})
+        fetch(req).then(function(res){
+          console.log({res})
+        })
+    }
+    fr.onprogress = function(er){
+      // console.log(er)
+    }
+    fr.readAsArrayBuffer(this.files[0])
+  }
+
+  
+
+
+
+</script>
+
+
+</body>
+</html>
+
+
+
