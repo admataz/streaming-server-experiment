@@ -1,4 +1,5 @@
 const path = require('path')
+const fs = require('fs')
 const fastifyStatic = require('fastify-static')
 
 module.exports = function (fastify, opts, next) {
@@ -23,12 +24,11 @@ fastify.get('/upload', function (req, reply) {
   })
 
   fastify.post('/submit', (request, reply) => {
-    let count = []
-    request.req.on('data', d=>{
-      console.log(d.length)
-    })
-    // console.log(request.req)
-    reply.send(request.req)
+    const f = fs.createWriteStream('./test.jpg')
+    // we can pipe the request to a file
+    // I was hoping we could stream upload from the browser - but that's not possible yet
+    request.req.pipe(f)
+    reply.send({uploaded: true})
   })
 
 

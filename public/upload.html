@@ -1,76 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
 </head>
+
 <body>
   <input type="file" id="fileupload" />
 
+  <script>
+    const fileInput = document.querySelector('#fileupload')
+    fileInput.addEventListener('change', handleFiles, false)
+    let rs
 
-<script>
-  const fileInput = document.querySelector('#fileupload')
-  fileInput.addEventListener('change', handleFiles, false)
-  let rs
-  
+    function uploadfile(body) {
+      let req = new Request('/submit', {
+        method: 'POST',
+        body,
+        headers: {
+          'content-type': 'application/octet-stream'
+        }
+      })
+      fetch(req).then(function (res) {
+        console.log({
+          res
+        })
+      })
+    }
 
-  function handleFiles(){
-    const fr = new FileReader()
-    
-    
-    fr.onloadend = function(f){
-      
+// damn. this is not actually supported in browsers yet - https://developer.mozilla.org/en-US/docs/Web/API/Request/Request#Browser_compatibility
+    function uploadReadableStream(payload){
       rs = new ReadableStream({
-        start(controller){
-          controller.enqueue(fr.result)
+        start(controller) {
+          controller.enqueue(payload)
+          controller.close()
         },
-        pull(controller){
+        pull(controller) {
           console.log(controller)
           console.log('pull')
         }
-        // autoAllocateChunkSize: 5
       })
+      uploadfile(rs)
+    }
 
 
+    function handleFiles() {
+      const fr = new FileReader()
 
-
-
-      const reader = rs.getReader()
-      function pushStream(c){
-        reader.read().then(function(evt){
-          console.log(evt)
-          if(evt.done){
-            console.log('done')
-            return
-          }
-          pushStream()
-        })
+      fr.onload = function (evt) {
+        uploadfile(evt.target.result)
       }
 
-      pushStream()
-      // console.log(fr.result)
-      let req = new Request('/submit', {method:'POST', body: fr.result})
-        fetch(req).then(function(res){
-          console.log({res})
-        })
+      fr.onprogress = function (evt) {
+        console.log(evt)
+      }
+
+      fr.readAsArrayBuffer(this.files[0])
     }
-    fr.onprogress = function(er){
-      // console.log(er)
-    }
-    fr.readAsArrayBuffer(this.files[0])
-  }
-
-  
-
-
-
-</script>
+  </script>
 
 
 </body>
+
 </html>
-
-
-
